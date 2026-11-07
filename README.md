@@ -1,4 +1,4 @@
-# Icicle
+# Icicle Enhanced
 
 Enemy cooldown icons above nameplates for World of Warcraft 3.3.5a (WotLK).
 
@@ -19,7 +19,7 @@ When an enemy player uses a tracked ability (PvP trinket, Blink, Kick, Deterrenc
 
 1. Download this repository (**Code → Download ZIP**).
 2. Copy the `Icicle` folder into `World of Warcraft/Interface/AddOns/`.
-3. Make sure **Icicle** is enabled in the AddOns list on the character select screen.
+3. Make sure **Icicle Enhanced** is enabled in the AddOns list on the character select screen.
 
 ## Usage
 

@@ -1,4 +1,4 @@
-# Icicle
+# Icicle Enhanced
 
 Iconos de cooldowns enemigos sobre las placas de nombre para World of Warcraft 3.3.5a (WotLK).
 
@@ -19,7 +19,7 @@ Cuando un jugador enemigo usa una habilidad seguida (abalorio JcJ, Traslación, 
 
 1. Descargá este repositorio (**Code → Download ZIP**).
 2. Copiá la carpeta `Icicle` en `World of Warcraft/Interface/AddOns/`.
-3. Verificá que **Icicle** esté activado en la lista de AddOns de la pantalla de personajes.
+3. Verificá que **Icicle Enhanced** esté activado en la lista de AddOns de la pantalla de personajes.
 
 ## Uso
 

@@ -2,7 +2,7 @@ Icicle = LibStub("AceAddon-3.0"):NewAddon("Icicle", "AceEvent-3.0","AceConsole-3
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local self , Icicle = Icicle , Icicle
-local Icicle_TEXT="|cffFF7D0AIcicle|r"
+local Icicle_TEXT="|cffffffffIcicle|r |cff00ff00Enhanced|r"
 local Icicle_VERSION= " r335.01"
 local Icicle_AUTHOR=" updated by |cff0070DENidhaus|r - Wowaura.com"
 local Icicledb
@@ -22,7 +22,7 @@ self.db2 = LibStub("AceDB-3.0"):New("Icicledb",dbDefaults, "Default");
 	self.db2.RegisterCallback(self, "OnProfileReset", "ChangeProfile")
 	Icicledb = self.db2.profile
 	Icicle.options = {
-		name = "Icicle",
+		name = "Icicle Enhanced",
 		desc = "Icons above enemy nameplates showing cooldowns",
 		type = 'group',
 		icon = [[Interface\Icons\Spell_Nature_ForceOfNature]],
@@ -38,7 +38,7 @@ self.db2 = LibStub("AceDB-3.0"):New("Icicledb",dbDefaults, "Default");
 	}
 
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Icicle_bliz", bliz_options)
-	AceConfigDialog:AddToBlizOptions("Icicle_bliz", "Icicle")
+	AceConfigDialog:AddToBlizOptions("Icicle_bliz", "Icicle Enhanced")
 end
 function Icicle:OnDisable()
 end

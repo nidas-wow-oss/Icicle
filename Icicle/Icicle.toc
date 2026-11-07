@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Title: Icicle
+## Title: |cffffffffI|r|cffffffffc|r|cffffffffi|r|cffffffffc|r|cffffffffl|r|cffffffffe|r|cff00ff00 |r|cff00ff00E|r|cff00ff00n|r|cff00ff00h|r|cff00ff00a|r|cff00ff00n|r|cff00ff00c|r|cff00ff00e|r|cff00ff00d|r
 ## Version: 1
 ## SavedVariables: Icicledb
 ## Author: Nidhaus
