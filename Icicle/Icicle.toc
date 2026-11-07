@@ -1,0 +1,11 @@
+## Interface: 30300
+## Title: Icicle
+## Version: 1
+## SavedVariables: Icicledb
+## Author: Nidhaus
+
+Icicle.xml
+settings.lua
+Icicle.lua
+IcicleCds.lua
+sponsors.lua
