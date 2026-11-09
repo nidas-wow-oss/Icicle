@@ -6,15 +6,14 @@ local Icicle_TEXT="|cffffffffIcicle|r |cff00ff00Enhanced|r"
 local Icicle_VERSION= " r335.01"
 local Icicle_AUTHOR=" updated by |cff0070DENidhaus|r - Wowaura.com"
 local Icicledb
--- HoJ dynamic cooldown detection
-local hojSpellID = 10308
-local hojLastCast = {}        -- [unitName] = GetTime()
-local hojDetectedCD = {}      -- [unitName] = 40 or 60
 
+local hojSpellID = 10308
+local hojLastCast = {}
+local hojDetectedCD = {}
 
 function Icicle:OnInitialize()
 self.db2 = LibStub("AceDB-3.0"):New("Icicledb",dbDefaults, "Default");
-	--LibStub("AceConfig-3.0"):RegisterOptionsTable("Icicle", Icicle.Options, {"Icicle", "SS"})
+
 	self:RegisterChatCommand("Icicle", "ShowConfig")
 	self.db2.RegisterCallback(self, "OnProfileChanged", "ChangeProfile")
 	self.db2.RegisterCallback(self, "OnProfileCopied", "ChangeProfile")
@@ -70,10 +69,9 @@ end
 function Icicle:AddOption(key, table)
 	self.options.args[key] = table
 end
--- sube con cada cambio de opcion; las placas se rearman al verlo distinto
--- (antes los cambios recien se veian cuando aparecia o vencia un CD)
+
 local layoutVersion = 0
-local RunTest -- se define abajo, cuando ya existen sourcetable y los frames
+local RunTest
 local function setOption(info, value)
 	local name = info[#info]
 	Icicledb[name] = value
@@ -89,8 +87,7 @@ GameTooltip:HookScript("OnTooltipSetUnit", function(tip)
         if (Icicle_sponsors[name] ) then if ( Icicle_sponsors[name]["Realm"] == Realm ) then
 		tip:AddLine(Icicle_sponsors[Icicle_sponsors[name].Type], 1, 0, 0 ) end; end
     end)
--- Pestaña "Spells": una subseccion por clase, con casilla y duracion por hechizo.
--- Se arma al abrir el menu: ahi GetSpellInfo ya da el nombre en el idioma del cliente.
+
 local SPELL_GROUP_ORDER = {"Misc", "Death Knight", "Druid", "Hunter", "Mage", "Paladin",
 	"Priest", "Rogue", "Shaman", "Warlock", "Warrior", "Pets"}
 
@@ -98,7 +95,7 @@ local function BuildSpellOptions()
 	local byGroup = {}
 	for id, cd in pairs(IcicleCds) do
 		local name, _, tex = GetSpellInfo(id)
-		-- hay IDs de Cataclysm en la tabla: en 3.3.5a no existen y se saltean
+
 		if name then
 			local g = (IcicleCdsGroups and IcicleCdsGroups[id]) or "Misc"
 			byGroup[g] = byGroup[g] or {}
@@ -161,7 +158,7 @@ local function BuildSpellOptions()
 					step = 1,
 					get = function() return Icicledb.cds[id] or IcicleCds[id] end,
 					set = function(info, v)
-						-- solo se guarda si difiere, asi un cambio futuro de la tabla aplica
+
 						if v == IcicleCds[id] then
 							Icicledb.cds[id] = nil
 						else
@@ -378,17 +375,14 @@ function Icicle:OnOptionsCreate()
 	self:AddOption('Spells', BuildSpellOptions())
 	end
 
--- Por ID y no por nombre: el nombre del registro de combate viene en el
--- idioma del cliente ("Disuasion"), asi que los nombres en ingles nunca coincidian.
 local IcicleReset = {
-	-- Cold Snap: Deep Freeze, Ice Block, Ice Barrier, Frost Nova, Icy Veins
+
 	[11958] = {[44572] = true, [45438] = true, [43039] = true, [42917] = true, [12472] = true},
-	-- Preparation: Vanish, Shadowstep, Sprint, Evasion (Kick y Dismantle solo con glifo)
+
 	[14185] = {[26889] = true, [36554] = true, [11305] = true, [26669] = true},
-	-- Readiness: todas las del cazador menos Bestial Wrath
+
 	[23989] = {[65878] = true, [3045] = true, [61006] = true, [53271] = true, [19263] = true, [19503] = true, [34490] = true},
 }
-
 
 local db = {}
 local eventcheck = {}
@@ -397,13 +391,10 @@ local plateframe = CreateFrame("frame")
 local count = 0
 local width
 
--- Caché de nameplates para optimización de rendimiento
-local knownPlates = {}        -- [frame] = true/false
-local plateCache = {}         -- [frame] = {name, lastCheck}
-local cacheTimeout = 1.0      -- Tiempo antes de revalidar un nameplate (segundos)
+local knownPlates = {}
+local plateCache = {}
+local cacheTimeout = 1.0
 
--- interrupciones por ID; GetSpellInfo da el nombre en el idioma del cliente
--- (con nombres en ingles el borde naranja no salia en clientes en espanol)
 local IcicleInterrupts = {}
 for _, id in ipairs({47528, 34490, 2139, 15487, 1766, 57994, 6552, 72, 19647, 47476, 26090}) do
 	local n = GetSpellInfo(id)
@@ -414,7 +405,6 @@ local function byEndTime(a, b)
 	return a.endtime < b.endtime
 end
 
--- texto de segundos: "1m" arriba de un minuto, rojo en los ultimos 5 s
 local function settimer(icon, now)
 	local left = icon.endtime - now
 	if left < 0 then left = 0 end
@@ -431,10 +421,9 @@ local function settimer(icon, now)
 	end
 end
 
--- se aplica en cada armado, asi las opciones cambian al instante
 local function styleicon(icon, size)
 	icon:SetAlpha(Icicledb.iconAlpha or 1)
-	-- encima del espiral: si no, el borde y el texto quedaban oscurecidos
+
 	icon.over:SetFrameLevel(icon.cooldown:GetFrameLevel() + 1)
 	if icon.border then
 		if Icicledb.intBorder then
@@ -467,8 +456,7 @@ local addicons = function(name, f)
 	if not plateW or plateW == 0 then plateW = width end
 
 	local size, perRow
-	-- en filas: tamaño fijo y las filas extra suben; achicar dejaba los
-	-- iconos ilegibles contra clases con muchos CDs (p. ej. rogues)
+
 	if Icicledb.wrap then
 		size = Icicledb.iconsizer
 		perRow = Icicledb.perRow or 5
@@ -489,12 +477,12 @@ local addicons = function(name, f)
 		local row = floor((i - 1) / perRow)
 		local x
 		if mode == "center" then
-			-- la fila queda centrada y crece hacia los dos lados
+
 			local inRow = min(perRow, num - row * perRow)
 			local rowW = inRow * size + (inRow - 1) * 2
 			x = (plateW - rowW) / 2 + X + col * (size + 2)
 		elseif mode == "right" then
-			-- el primero pegado al borde derecho, los nuevos hacia la izquierda
+
 			x = plateW - X - (col + 1) * size - col * 2
 		else
 			x = X + col * (size + 2)
@@ -515,22 +503,21 @@ local hideicons = function(name, f)
 	end
 	f:SetScript("OnHide", nil)
 end
-		
+
 local sourcetable = function(Name, spellID, spellName)
 	if not db[Name] then db[Name] = {} end
 	local _, _, texture = GetSpellInfo(spellID)
-	
+
 local duration
 if spellID == hojSpellID and hojDetectedCD[Name] then
     duration = hojDetectedCD[Name]
 else
     duration = Icicledb.cds[spellID] or IcicleCds[spellID]
 end
-	-- Validar que la textura existe
+
 	if not texture then
 		texture = "Interface\\Icons\\INV_Misc_QuestionMark"
 	end
-
 
 	local icon = CreateFrame("frame", nil, UIParent)
 	icon.texture = icon:CreateTexture(nil, "BORDER")
@@ -541,7 +528,7 @@ end
 	icon.endtime = GetTime() + duration
 	icon.name = spellName
 	icon.spellID = spellID
-	-- capa sobre el espiral para el borde y los numeros
+
 	icon.over = CreateFrame("Frame", nil, icon)
 	icon.over:SetAllPoints(icon)
 	icon.text = icon.over:CreateFontString(nil, "OVERLAY")
@@ -557,9 +544,9 @@ end
 		end
 	end
 	CooldownFrame_SetTimer(icon.cooldown, GetTime(), duration, 1)
-	local resets = IcicleReset[spellID] --Preparation, Cold Snap, Readiness
+	local resets = IcicleReset[spellID]
 	if resets then
-		-- de atras hacia adelante: tremove corre los indices y se saltaba iconos
+
 		for i = #db[Name], 1, -1 do
 			local old = db[Name][i]
 			if old and (resets[old.spellID] or old.name == spellName) then
@@ -593,8 +580,7 @@ end
 			end
 		end
 	end
-	-- apagado en Spells: el reinicio de arriba igual corre (Disposicion apagada
-	-- sigue borrando los CDs del cazador), pero no se muestra su icono
+
 	if Icicledb.disabled[spellID] then
 		icon:Hide()
 		count = count - 1
@@ -603,36 +589,23 @@ end
 	tinsert(db[Name], icon)
 end
 
---[[local getname = function(f)
-	local name
-	local _, _, _, _, _, _, eman = f:GetRegions()
-	if strmatch(eman:GetText(), "%d") then 
-		local _, _, _, _, _, eman = f:GetRegions()
-		name = strmatch(eman:GetText(), "[^%lU%p].+%P")
-	else
-		name = strmatch(eman:GetText(), "[^%lU%p].+%P")
-	end
-	return name
-end]]
-
 local getname = function(f)
 	local name
 	local _, _, _, _, _, _, eman = f:GetRegions()
-	
-	-- Primero intentar con Aloft
+
 	if f.aloftData and f.aloftData.name then
 		name = f.aloftData.name
-	-- Si no, intentar obtener el texto del nameplate
+
 	elseif eman and eman.GetText then
 		local text = eman:GetText()
 		if text and text ~= "" then
 			name = text
 		end
 	end
-	
+
 	return name
 end
-		
+
 local onpurge = 0
 local uppurge = function(self, elapsed)
 	onpurge = onpurge + elapsed
@@ -645,8 +618,7 @@ local uppurge = function(self, elapsed)
 		local now = GetTime()
 		local showTimer = Icicledb.showTimer
 		for k, v in pairs(db) do
-			-- de atras hacia adelante: con ipairs + tremove se salteaba el
-			-- icono siguiente cuando vencian dos juntos
+
 			for i = #v, 1, -1 do
 				local c = v[i]
 				if c.endtime < now then
@@ -667,7 +639,7 @@ local uppurge = function(self, elapsed)
 		end
 	end
 end
-		
+
 local onplate = 0
 local getplate = function(frame, elapsed)
 	onplate = onplate + elapsed
@@ -676,49 +648,45 @@ local getplate = function(frame, elapsed)
 		local num = WorldFrame:GetNumChildren()
 		local currentTime = GetTime()
 		local currentPlates = {}
-		
+
 		for i = 1, num do
 			local f = select(i, WorldFrame:GetChildren())
-			
-			-- Solo procesar si parece ser un nameplate y es visible
+
 			if f:IsVisible() and f:GetNumRegions() > 2 and f:GetNumChildren() >= 1 then
 				currentPlates[f] = true
-				
+
 				if not f.icicle then f.icicle = 0 end
-				
-				-- Verificar si necesitamos procesar este nameplate
+
 				local needsProcessing = false
 				local cachedName = nil
-				
+
 				if not knownPlates[f] then
-					-- Nameplate nuevo, siempre procesar
+
 					needsProcessing = true
 					knownPlates[f] = true
 				elseif plateCache[f] then
-					-- Nameplate conocido, verificar si el caché es válido
+
 					if currentTime - plateCache[f].lastCheck > cacheTimeout then
-						-- Caché expirado, revalidar
+
 						needsProcessing = true
 					else
-						-- Caché válido, usar nombre cacheado
+
 						cachedName = plateCache[f].name
 					end
 				else
-					-- Nameplate conocido pero sin caché, procesar
+
 					needsProcessing = true
 				end
-				
-				-- Obtener el nombre (de caché o nuevo)
+
 				local name = cachedName
 				if needsProcessing then
 					name = getname(f)
-					-- Actualizar caché
+
 					if name then
 						plateCache[f] = {name = name, lastCheck = currentTime}
 					end
 				end
-				
-				-- Solo continuar si tenemos un nombre y hay datos para mostrar
+
 				if name and db[name] then
 					if f.icicle ~= #db[name] or f.icicleVer ~= layoutVersion then
 						f.icicle = #db[name]
@@ -735,8 +703,7 @@ local getplate = function(frame, elapsed)
 				end
 			end
 		end
-		
-		-- Limpiar referencias a nameplates que ya no existen
+
 		for plate in pairs(knownPlates) do
 			if not currentPlates[plate] then
 				knownPlates[plate] = nil
@@ -754,12 +721,12 @@ function IcicleEvent.COMBAT_LOG_EVENT_UNFILTERED(event, ...)
 	if (not ((pvpType == "contested" and Icicledb.field) or (pvpType == "hostile" and Icicledb.field) or (pvpType == "friendly" and Icicledb.field) or (currentZoneType == "pvp" and Icicledb.battleground) or (currentZoneType == "arena" and Icicledb.arena) or Icicledb.all)) then
 	return
 	end
-	-- los apagados se descartan aca, salvo los que reinician otros CDs
+
 	if IcicleCds[spellID] and (not Icicledb.disabled[spellID] or IcicleReset[spellID])
 		and bit.band(srcFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) ~= 0 then
 		local Name = strmatch(srcName, "[%P]+")
 		if eventType == "SPELL_CAST_SUCCESS" or eventType == "SPELL_AURA_APPLIED" or eventType == "SPELL_MISSED" or eventType == "SPELL_SUMMON" then
-            -- Detección de Improved HoJ
+
             if spellID == hojSpellID then
                 local now = GetTime()
                 if hojLastCast[Name] then
@@ -792,20 +759,18 @@ end
 function IcicleEvent.PLAYER_ENTERING_WORLD(event, ...)
 	wipe(db)
 	wipe(eventcheck)
-	wipe(hojLastCast)     -- Limpiar detección de HoJ
-	wipe(hojDetectedCD)   -- Limpiar cooldowns detectados
-	wipe(knownPlates)    -- Limpiar caché de nameplates conocidos
-	wipe(plateCache)      -- Limpiar caché de nombres de nameplates
+	wipe(hojLastCast)
+	wipe(hojDetectedCD)
+	wipe(knownPlates)
+	wipe(plateCache)
 	count = 0
 end
 
--- iconos de muestra sobre el objetivo, con duraciones cortas para que se
--- vean vencer; dos son interrupciones para probar el borde
 local TEST_SPELLS = {42292, 2139, 1766, 45438, 19263, 26889, 34490}
 RunTest = function()
 	local target = UnitName("target")
 	if not target then
-		-- al centro de la pantalla y no al chat: el usuario no quiere mensajes ahi
+
 		UIErrorsFrame:AddMessage("Icicle: target someone with a visible nameplate first.", 1, 0.2, 0.2)
 		return
 	end

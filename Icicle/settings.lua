@@ -1,4 +1,3 @@
-
 dbDefaults = {
 	profile = {
 all = false,
@@ -16,7 +15,7 @@ intBorder = true,
 intColor = {r = 1, g = 0.6, b = 0.1},
 showTimer = false,
 iconAlpha = 1,
-disabled = {},   -- [spellID] = true: no se sigue
-cds = {},        -- [spellID] = segundos: duracion cambiada desde Spells
+disabled = {},
+cds = {},
 	}
 }
