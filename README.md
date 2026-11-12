@@ -7,12 +7,18 @@ When an enemy player uses a tracked ability (PvP trinket, Blink, Kick, Deterrenc
 ## Features
 
 - Icons above enemy nameplates with the remaining cooldown.
-- Orange border on interrupts.
-- **Readiness**, **Preparation** and **Cold Snap** clear the cooldowns they reset.
-- Works in any client language (spells are matched by ID).
+- **Spell list**: every tracked cooldown grouped by class, each with its own on/off checkbox and an editable duration (for glyphs and talents). Enable all / Disable all per class.
+- **Readiness**, **Preparation** and **Cold Snap** clear the cooldowns they reset (even if you hide their own icon).
+- **Grow direction**: from the left, from the center outwards, or from the right.
+- **Order**: by order of use, or the cooldown that is ready soonest first.
 - **Wrap into rows**: icons keep their size and stack in rows instead of shrinking when an enemy has many cooldowns up.
+- **Interrupt border** with a color of your choice, or turned off.
+- Optional **countdown numbers** on each icon (red in the last 5 seconds).
+- Adjustable icon size, opacity, icons per row and X/Y offsets. Changes show up instantly.
+- **Test icons** button: puts sample cooldowns on your target's nameplate to set up the layout without a fight.
+- Works in any client language (spells are matched by ID).
 - Enable it in arenas, battlegrounds, the open world, or everywhere.
-- Adjustable icon size, icons per row and X/Y offsets.
+- No chat spam.
 - Profiles (Ace3).
 
 ## Installation
